@@ -1,13 +1,14 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { TbReportSearch } from "react-icons/tb";
+import { TbWorldSearch } from "react-icons/tb";
 
 function Navbar() {
   return (
     <header className="bg-black py-1">
-    <div className="container mx-auto pt-4 px-4 sm:px-12 flex flex-col sm:flex-row justify-between items-center z-50">
+    <div className="container mx-auto pt-2 px-4 sm:px-12 flex flex-col sm:flex-row justify-between items-center z-50">
       <Link to="/" className="flex items-center space-x-1 mb-4 sm:mb-4 select-none">
-      <TbReportSearch className='text-white text-3xl' />
+      <TbWorldSearch className='hidden sm:inline text-white text-3xl' />
         <span className="hidden sm:inline text-white font-bold text-3xl select-none">RepoFinder</span>
       </Link>
       <nav className="flex items-center font-Hublot">

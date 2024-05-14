@@ -1,42 +1,341 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+
+  background-color: #070707;
+}
+
+.locationAutosuggestContainer {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .locationAutosuggestContainer {
+    justify-content: flex-start;
+  }
+}
+
+.centerOrLeft {
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .centerOrLeft {
+    justify-content: flex-start;
+  }
+}
+
+.jack-sheehy {
+  position: absolute;
+  bottom: 0;
+  z-index: 1000;
+  width: 100%;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.home-no-scroll {
+  overflow: hidden;
 }
 
-@keyframes logo-spin {
+.globe-position {
+  top: calc(50%);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+body::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+body {
+  scrollbar-width: none;
+}
+
+@font-face {
+  font-family: "Mona Sans";
+  src:
+    url("Mona-Sans.woff2") format("woff2 supports variations"),
+    url("Mona-Sans.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Hublot-Sans";
+  src: url("./assets/fonts/Hubot-Sans.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.customFont {
+  text-wrap: balance;
+  font-weight: 800;
+}
+
+.custom-text-shadow {
+  text-shadow:
+    0 0 5px lightskyblue,
+    0 0 10px lightskyblue;
+}
+
+.HomeContainer {
+  display: flex;
+  padding-left: 5px;
+  padding-right: 5px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 7rem;
+}
+
+.signInCard {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+
+  border-radius: 1rem;
+  border: 1px solid rgb(189, 189, 189);
+  color: white;
+}
+
+.signInButton {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  border-radius: 0.5rem;
+  border: 1px solid rgb(189, 189, 189);
+  color: white;
+  transition: background 0.1s ease-in-out;
+  padding-right: 20%;
+  padding-left: 20%;
+}
+
+.signInButton:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.github-user {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+
+  border-radius: 0.75rem;
+  border: 1px solid rgb(189, 189, 189);
+  color: white;
+  padding: 1rem;
+  width: 40rem;
+  max-height: 10rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@media (max-width: 42rem) {
+  .github-user {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .github-user {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.github-user-details {
+  font-family: "Mona-Sans";
+  font-size: 14px;
+  color: #333;
+}
+.custom-card {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  border-radius: 20px;
+  border: 1px solid rgb(128, 128, 128);
+  padding: 1.5rem;
+  display: flex;
+  min-width: 40rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .custom-card {
+    background: transparent;
+    border: none;
+    backdrop-filter: blur(0px);
+  }
+
+  .h2text {
+    display: none;
+  }
+
+  h1 {
+    padding-bottom: 2rem;
+  }
+  .GeoIcon {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .cobe-hide-sm {
+    display: none !important;
+  }
+}
+
+
+.get-started-button {
+  border: 2px solid rgb(194, 194, 194);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  color: white;
+  border-radius: 2rem;
+  padding: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.1s ease-in-out;
+  transition:
+    background 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.show-more-button {
+  border: 2px solid rgb(194, 194, 194);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  color: white;
+  border-radius: 2rem;
+  padding: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.1s ease-in-out;
+  transition:
+    background 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.show-more-button:hover {
+  box-shadow: 0 0 15px rgb(128, 182, 248);
+}
+
+.get-started-button:hover {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 15px rgb(147, 196, 255);
+}
+
+.balance {
+  text-wrap: balance;
+}
+.login-button {
+  border: 2px solid rgb(184, 184, 184);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 1);
+
+  transition:
+    background 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.login-button:hover {
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(96, 165, 250, 1);
+}
+
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+.fade-in1 {
+  animation: fadeIn ease-in 1;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+.fade-in2 {
+  animation: fadeIn ease-in 1;
+  animation-duration: 0.7s;
+  animation-fill-mode: forwards;
+}
+
+.fade-in3 {
+  animation: fadeIn ease-in 1;
+  animation-duration: 0.9s;
+  animation-fill-mode: forwards;
+}
+
+.fade-in-delay {
+  animation: fadeIn ease-in 1;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-delay: 0.3s;
+}
+
+.fade-enter,
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+.fade-enter-active,
+.fade-exit {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.fade-in {
+  animation: fade-in-animation 0.5s forwards;
+}
+
+@keyframes fade-in-animation {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-.card {
-  padding: 2em;
+#canvas-background {
+  background: red;
+  opacity: 0; /* Start invisible */
+  transition: opacity 0.5s ease-out;
 }
 
-.read-the-docs {
-  color: #888;
-}
+
+
