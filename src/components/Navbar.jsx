@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import { TbReportSearch } from "react-icons/tb";
 import { TbWorldSearch } from "react-icons/tb";
 
 function Navbar() {
@@ -14,17 +13,17 @@ function Navbar() {
       <nav className="flex items-center font-Hublot">
         <ul className="flex space-x-2 sm:space-x-4 text-gray-300 font-bold select-none">
           <li>
-            <Link to="/" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white transition duration-150 ease-in-out hover:text-gray-300">
+            <Link to="/" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white hover:scale-110 hover:text-gray-300 ease-in-out transition-all duration-300">
               Home
             </Link>
           </li>
           <li>
-            <Link to="/Search" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white transition duration-150 ease-in-out hover:text-gray-300">
+            <Link to="/Search" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white hover:scale-110 hover:text-gray-300 ease-in-out transition-all duration-300">
               Search
             </Link>
           </li>
           <li>
-            <Link to="/About" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white transition duration-150 ease-in-out hover:text-gray-300">
+            <Link to="/About" className="px-2 sm:px-4 py-2 block font-bold text-xl text-white hover:scale-110 hover:text-gray-300 ease-in-out transition-all duration-300">
               About
             </Link>
           </li>
