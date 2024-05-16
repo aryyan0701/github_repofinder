@@ -14,18 +14,18 @@ function Search() {
   const [coordinates, setCoordinates] = useState([45, 10]);
   const [searchInput, setSearchInput] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [queryData, setQueryData] = useState([]); // Changed to array to handle multiple pages
-  const [pageInfo, setPageInfo] = useState(null); // New state for pageInfo
-  const [isLoadingMore, setIsLoadingMore] = useState(false); // New state for Load More button
-  const [isSearching, setIsSearching] = useState(false); // New state for Find button
+  const [queryData, setQueryData] = useState([]); 
+  const [pageInfo, setPageInfo] = useState(null); 
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSearching, setIsSearching] = useState(false); 
 
   const [searchRepositories, { loading, error }] = useLazyQuery(SEARCH_REPOSITORIES, {
     client: apolloClient,
     onCompleted: (data) => {
       setQueryData((prevData) => [...prevData, ...data.search.edges]);
       setPageInfo(data.search.pageInfo);
-      setIsLoadingMore(false); // Set loading state to false when query completes
-      setIsSearching(false); // Set loading state to false when query completes
+      setIsLoadingMore(false); 
+      setIsSearching(false); 
     },
   });
 
@@ -45,25 +45,25 @@ function Search() {
 
   const handleSearch = () => {
     if (searchInput.trim() !== "") {
-      setIsSearching(true); // Set loading state to true when Find button is clicked
+      setIsSearching(true);
       searchRepositories({ variables: { query: searchInput, first: 10 } });
-      setQueryData([]); // Clear previous data
+      setQueryData([]); 
     } else {
-      setQueryData([]); // Ensure query data is cleared when search input is empty
+      setQueryData([]); 
     }
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchInput(suggestion);
     setFilteredSuggestions([]);
-    setIsSearching(true); // Set loading state to true when Find button is clicked
+    setIsSearching(true); 
     searchRepositories({ variables: { query: suggestion, first: 10 } });
-    setQueryData([]); // Clear previous data
+    setQueryData([]); 
   };
 
   const handleLoadMore = () => {
     if (pageInfo?.hasNextPage) {
-      setIsLoadingMore(true); // Set loading state to true when Load More button is clicked
+      setIsLoadingMore(true); 
       searchRepositories({ variables: { query: searchInput, first: 10, after: pageInfo.endCursor } });
     }
   };
@@ -71,11 +71,6 @@ function Search() {
   return (
     <>
       <main className="bg-thegray relative min-h-screen">
-        {/* <div className="fixed w-full max-w-lg right-64">
-          <div className="absolute top-16 -right-12 w-[40rem] h-[40rem] bg-blue-300 rounded-full filter blur-5xl opacity-30 animate-blob animation-delay-1"></div>
-          <div className="absolute top-64 right-20 w-[30rem] h-[30rem] bg-blue-400 rounded-full filter blur-5xl opacity-20 animate-blob animation-delay-1"></div>
-        </div> */}
-
         <div className="hidden lg:block">
           <Cobe coordinates={coordinates} />
         </div>
@@ -99,7 +94,7 @@ function Search() {
                 value={searchInput}
                 onInputChange={handleInputChange}
                 onSearch={handleSearch}
-                isSearching={isSearching} // Pass isSearching prop to SearchInput
+                isSearching={isSearching} 
               />
               <SuggestionList
                 suggestions={filteredSuggestions}
