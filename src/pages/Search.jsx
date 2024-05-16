@@ -71,10 +71,10 @@ function Search() {
   return (
     <>
       <main className="bg-thegray relative min-h-screen">
-        <div className="fixed w-full max-w-lg right-64">
+        {/* <div className="fixed w-full max-w-lg right-64">
           <div className="absolute top-16 -right-12 w-[40rem] h-[40rem] bg-blue-300 rounded-full filter blur-5xl opacity-30 animate-blob animation-delay-1"></div>
           <div className="absolute top-64 right-20 w-[30rem] h-[30rem] bg-blue-400 rounded-full filter blur-5xl opacity-20 animate-blob animation-delay-1"></div>
-        </div>
+        </div> */}
 
         <div className="hidden lg:block">
           <Cobe coordinates={coordinates} />
@@ -159,7 +159,7 @@ function Search() {
                 </button>
               )}
               {queryData.length === 0 && searchInput.trim() !== "" && !loading && (
-                <p className="text-gray-400 mt-4">No repositories found.</p>
+                <p className="text-gray-400 mt-4">No tech stack found.</p>
               )}
             </div>
           </div>
