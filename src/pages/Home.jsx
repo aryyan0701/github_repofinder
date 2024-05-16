@@ -2,11 +2,9 @@ import "../App.css";
 import GlobeComponent from "../components/GlobeComponent";
 import { Link } from "react-router-dom";
 import TypingAnimation from "../components/TypingAnimation";
-import { FaUser } from "react-icons/fa";
-import { FaRegStar } from "react-icons/fa";
-import { IoGitPullRequestSharp } from "react-icons/io5";
-import { IoLink } from "react-icons/io5";
-import { IoSparklesSharp } from "react-icons/io5";
+import {FaRegStar, FaUser } from "react-icons/fa";
+import { IoGitPullRequestSharp, IoSparklesSharp, IoLink } from "react-icons/io5";
+
 
 function Home() {
   return (

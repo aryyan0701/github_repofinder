@@ -14,11 +14,19 @@ function Search() {
   const [coordinates, setCoordinates] = useState([45, 10]);
   const [searchInput, setSearchInput] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [queryData, setQueryData] = useState(null); // New state to handle query data
+  const [queryData, setQueryData] = useState([]); // Changed to array to handle multiple pages
+  const [pageInfo, setPageInfo] = useState(null); // New state for pageInfo
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // New state for Load More button
+  const [isSearching, setIsSearching] = useState(false); // New state for Find button
 
   const [searchRepositories, { loading, error }] = useLazyQuery(SEARCH_REPOSITORIES, {
     client: apolloClient,
-    onCompleted: data => setQueryData(data), // Set query data when query completes
+    onCompleted: (data) => {
+      setQueryData((prevData) => [...prevData, ...data.search.edges]);
+      setPageInfo(data.search.pageInfo);
+      setIsLoadingMore(false); // Set loading state to false when query completes
+      setIsSearching(false); // Set loading state to false when query completes
+    },
   });
 
   const handleInputChange = (query) => {
@@ -26,7 +34,7 @@ function Search() {
 
     if (query.trim() === "") {
       setFilteredSuggestions([]);
-      setQueryData(null);
+      setQueryData([]);
     } else {
       const filtered = suggestions.filter((suggestion) =>
         suggestion.toLowerCase().includes(query.toLowerCase())
@@ -37,16 +45,27 @@ function Search() {
 
   const handleSearch = () => {
     if (searchInput.trim() !== "") {
+      setIsSearching(true); // Set loading state to true when Find button is clicked
       searchRepositories({ variables: { query: searchInput, first: 10 } });
+      setQueryData([]); // Clear previous data
     } else {
-      setQueryData(null); // Ensure query data is cleared when search input is empty
+      setQueryData([]); // Ensure query data is cleared when search input is empty
     }
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchInput(suggestion);
     setFilteredSuggestions([]);
+    setIsSearching(true); // Set loading state to true when Find button is clicked
     searchRepositories({ variables: { query: suggestion, first: 10 } });
+    setQueryData([]); // Clear previous data
+  };
+
+  const handleLoadMore = () => {
+    if (pageInfo?.hasNextPage) {
+      setIsLoadingMore(true); // Set loading state to true when Load More button is clicked
+      searchRepositories({ variables: { query: searchInput, first: 10, after: pageInfo.endCursor } });
+    }
   };
 
   return (
@@ -80,6 +99,7 @@ function Search() {
                 value={searchInput}
                 onInputChange={handleInputChange}
                 onSearch={handleSearch}
+                isSearching={isSearching} // Pass isSearching prop to SearchInput
               />
               <SuggestionList
                 suggestions={filteredSuggestions}
@@ -87,26 +107,58 @@ function Search() {
               />
               {loading && <p className="text-gray-300">Loading...</p>}
               {error && <p className="text-red-500">Error: {error.message}</p>}
-              {queryData && queryData.search.edges.length > 0 && (
+              {queryData.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {queryData.search.edges.map((edge, index) => (
+                  {queryData.map((edge, index) => (
                     <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md">
                       <h3 className="text-xl font-semibold text-white">{edge.node.name}</h3>
-                      <p className="text-gray-400"><FaUser  className="inline align-text-center mr-1 mb-2"/> {edge.node.owner.login}</p>
+                      <p className="text-gray-400"><FaUser className="inline align-text-center mr-1 mb-2" /> {edge.node.owner.login}</p>
                       <p className="text-gray-400">
-                        <IoLink className="inline align-text-center mr-1 mb-2"/> <a href={edge.node.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{edge.node.url}</a>
+                        <IoLink className="inline align-text-center mr-1 mb-2" /> <a href={edge.node.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{edge.node.url}</a>
                       </p>
                       <p className="text-gray-400">
-                        <FaExternalLinkAlt className="inline align-text-center mr-1 mb-2"/> <a href={edge.node.homepageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{edge.node.homepageUrl}</a>
+                        <FaExternalLinkAlt className="inline align-text-center mr-1 mb-2" /> <a href={edge.node.homepageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{edge.node.homepageUrl}</a>
                       </p>
-                      <p className="text-gray-400"><FaRegStar className="inline align-text-center mr-1 mb-2"/> {edge.node.stargazers.totalCount}</p>
-                      <p className="text-gray-400"><FaCodeFork className="inline align-text-center mr-1 mb-2"/> {edge.node.forks.totalCount}</p>
+                      <p className="text-gray-400"><FaRegStar className="inline align-text-center mr-1 mb-2" /> {edge.node.stargazers.totalCount}</p>
+                      <p className="text-gray-400"><FaCodeFork className="inline align-text-center mr-1 mb-2" /> {edge.node.forks.totalCount}</p>
                       <p className="text-gray-400">Des: {edge.node.description}</p>
                     </div>
                   ))}
                 </div>
               )}
-              {queryData && queryData.search.edges.length === 0 && (
+              {queryData.length > 0 && pageInfo?.hasNextPage && (
+                <button
+                  className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex items-center justify-center"
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore} // Disable button while loading
+                >
+                  {isLoadingMore ? (
+                    <svg
+                      className="animate-spin h-5 w-5 mr-3 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Load More"
+                  )}
+                </button>
+              )}
+              {queryData.length === 0 && searchInput.trim() !== "" && !loading && (
                 <p className="text-gray-400 mt-4">No repositories found.</p>
               )}
             </div>
