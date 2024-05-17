@@ -81,9 +81,7 @@ function Search() {
             </h1>
             <div className="flex select-none">
               <p className="font-Hublot select-none text-gray-300 mr-4 max-w-[28rem] leading-[1.7rem] fade-in2">
-                Start by entering the location you want to rank developers from.
-                Keep in mind, the results reflect the location users have
-                entered themselves and are not entirely definitive.
+                Start by entering your known/interested tech stack into the search box. Keep in mind that the results reflect the tech stack github Repo has.
               </p>
             </div>
             <div className="pt-6 pb-6">
