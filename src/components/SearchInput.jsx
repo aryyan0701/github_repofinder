@@ -1,12 +1,29 @@
-import React from 'react';
-import debounce from 'lodash/debounce';
+import React, { useState } from "react";
+import debounce from "lodash/debounce";
+import { HiQuestionMarkCircle } from "react-icons/hi";
+import Modal from "react-modal";
+import { FaUser, FaRegStar, FaExternalLinkAlt } from "react-icons/fa";
+import { IoLink } from "react-icons/io5";
+import { FaCodeFork } from "react-icons/fa6";
+import { MdDescription } from "react-icons/md";
+
+Modal.setAppElement("#root");
 
 const SearchInput = ({ value, onInputChange, onSearch, isSearching }) => {
-  const debouncedInputChange = debounce(onInputChange, 20); 
+  const debouncedInputChange = debounce(onInputChange, 20);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const handleChange = (event) => {
     const query = event.target.value;
     debouncedInputChange(query);
+  };
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
   };
 
   return (
@@ -48,6 +65,36 @@ const SearchInput = ({ value, onInputChange, onSearch, isSearching }) => {
           "Find"
         )}
       </button>
+      <HiQuestionMarkCircle
+        onClick={openModal}
+        className="inline text-white ml-3 text-4xl cursor-pointer align-text-center"
+      />
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Criteria Modal"
+        className="modal"
+        overlayClassName="overlay"
+      >
+        <div className="bg-gray-700 p-7 rounded-lg shadow-lg">
+          <h2 className="text-xl text-white font-bold mb-4">Resulted Repo's Contains</h2>
+          <button
+            onClick={closeModal}
+            className="absolute top-0 right-1 text-3xl text-white"
+          >
+            &times;
+          </button>
+          <div className="flex flex-col text-white">
+              <strong><FaUser className="inline align-text-center mr-1 mb-2"/>owner</strong>
+              <strong><FaRegStar className="inline align-text-center mr-1 mb-2"/>Star Count</strong>
+              <strong><FaCodeFork className="inline align-text-center mr-1 mb-2"/>Fork Count</strong>
+              <strong><IoLink className="inline align-text-center mr-1 mb-2"/>url</strong>
+              <strong><FaExternalLinkAlt className="inline align-text-center mr-1 mb-2"/>live link</strong>
+              <strong><MdDescription className="inline align-text-center mr-1 mb-2"/>Description</strong>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
