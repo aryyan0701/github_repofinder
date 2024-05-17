@@ -1,6 +1,4 @@
 import "../App.css";
-// import GeogitIcon from "../assets/GeogitIcon.png";
-import { FaCity } from "react-icons/fa6";
 import { GoQuestion, GoGraph, GoGitPullRequestClosed } from "react-icons/go";
 import { BsGear } from "react-icons/bs";
 
@@ -11,10 +9,6 @@ function About() {
         <div className="min-h-screen flex items-center justify-center relative pb-32">
           <div className="relative">
             <div className="relative z-10 pt-5 pb-20">
-              {/* <div className="flex justify-center select-none">
-                <img src={GeogitIcon} alt="Geogit Icon" className="max-w-smallish pb-3 select-none pointer-events-none" />
-              </div> */}
-
               <div className="pt-10 max-w-[42rem] px-5">
                 <h1 className="text-left font-Mona font-bold text-white text-4xl leading-20 pb-2  ">
                   <GoQuestion className="inline align-bottom text-4xl" /> About RepoFinder
