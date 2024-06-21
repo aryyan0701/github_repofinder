@@ -25,6 +25,7 @@ const suggestions = [
     'Golang',
     'Ruby',
     'Rails',
+    "Rust"
   ];
   
   export default suggestions;
