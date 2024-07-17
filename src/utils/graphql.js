@@ -9,6 +9,7 @@ export const SEARCH_REPOSITORIES = gql`
             name
             owner {
               login
+              avatarUrl
             }
             url
             homepageUrl
