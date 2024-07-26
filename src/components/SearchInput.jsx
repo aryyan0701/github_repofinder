@@ -1,11 +1,8 @@
+// src/components/SearchInput.js
 import React, { useState } from "react";
 import debounce from "lodash/debounce";
-import { HiQuestionMarkCircle } from "react-icons/hi";
 import Modal from "react-modal";
-import { FaUser, FaRegStar, FaExternalLinkAlt } from "react-icons/fa";
-import { IoLink } from "react-icons/io5";
-import { FaCodeFork } from "react-icons/fa6";
-import { MdDescription } from "react-icons/md";
+import { HiQuestionMarkCircle } from "react-icons/hi";
 
 Modal.setAppElement("#root");
 
@@ -33,7 +30,7 @@ const SearchInput = ({ value, onInputChange, onSearch, isSearching }) => {
         className="w-[15rem] h-[2.5rem] rounded-l px-2"
         value={value}
         onChange={handleChange}
-        placeholder="Enter your tech stack"
+        placeholder="Enter GitHub username"
       />
       <button
         onClick={onSearch}
@@ -62,7 +59,7 @@ const SearchInput = ({ value, onInputChange, onSearch, isSearching }) => {
             ></path>
           </svg>
         ) : (
-          "Find"
+          "Search"
         )}
       </button>
       <HiQuestionMarkCircle
@@ -74,24 +71,30 @@ const SearchInput = ({ value, onInputChange, onSearch, isSearching }) => {
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         contentLabel="Criteria Modal"
-        className="modal"
+        className="modal bg-gray-800 rounded-lg shadow-lg p-6"
         overlayClassName="overlay"
       >
-        <div className="bg-gray-700 p-7 rounded-lg shadow-lg">
-          <h2 className="text-xl text-white font-bold mb-4">Resulted Repo's Contains</h2>
+        <div className="relative">
           <button
             onClick={closeModal}
             className="absolute top-0 right-1 text-3xl text-white"
           >
             &times;
           </button>
-          <div className="flex flex-col text-white">
-              <strong><FaUser className="inline align-text-center mr-1 mb-2"/>owner</strong>
-              <strong><FaRegStar className="inline align-text-center mr-1 mb-2"/>Star Count</strong>
-              <strong><FaCodeFork className="inline align-text-center mr-1 mb-2"/>Fork Count</strong>
-              <strong><IoLink className="inline align-text-center mr-1 mb-2"/>url</strong>
-              <strong><FaExternalLinkAlt className="inline align-text-center mr-1 mb-2"/>live link</strong>
-              <strong><MdDescription className="inline align-text-center mr-1 mb-2"/>Description</strong>
+          <div className="text-white">
+            <h2 className="text-xl font-bold mb-4">Search Criteria</h2>
+            <p>
+              <strong>Enter your GitHub username</strong> to find details about your profile.
+            </p>
+            <p className="mt-4">
+              We will show you the perfect GitHub repositories for your next contribution based on your past contribution history.
+            </p>
+            <p className="mt-4">
+              After entering your username, we analyze your past contribution graph on GitHub and recommend repositories that match your preferred tech stack, languages, or frameworks.
+            </p>
+            <p className="mt-4">
+              Our algorithm analyse your profile's total contributions, primary languages, and stars on your repositories to provide you with the most relevant suggestions.
+            </p>
           </div>
         </div>
       </Modal>

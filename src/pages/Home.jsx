@@ -34,8 +34,8 @@ function Home() {
                 </h1>
 
                 {/* Display on larger screens */}
-                <div className=" pb-4 select-none text-center font-Hublot text-gray-300 text-2xl max-w-[42rem] leading-20 pt-4 fade-in2">
-                  Start by entering the tech stack you know very well. Resulted repos are based on the tech stack you entered. Repos contains{" "}
+                <div className=" pb-4 select-none text-center font-Hublot text-gray-300 text-2xl max-w-[44rem] leading-20 pt-4 fade-in2">
+                  Start by entering your github username. The resulting repo's will be tailored to match your preferred tech stack based on your past github contributions history. Repos contains{" "}
                   <span className="text-white">
                     <FaUser className="inline align-text-bottom" /> Owner Info
                   </span>

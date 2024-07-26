@@ -1,187 +1,234 @@
-import React, { useState } from "react";
-import Cobe from "../components/AutoGlobe";
+import React, { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
+import Cobe from "../components/AutoGlobe";
 import SearchInput from "../components/SearchInput";
-import SuggestionList from "../components/SuggesionList";
-import suggestions from "../components/Suggestions";
-import { SEARCH_REPOSITORIES } from "../utils/graphql";
+import { SEARCH_USER_DETAILS, SEARCH_REPOSITORIES } from "../utils/graphql";
 import apolloClient from "../utils/apolloClient";
-import { FaUser, FaRegStar, FaExternalLinkAlt } from "react-icons/fa";
-import { IoLink } from "react-icons/io5";
-import { FaCodeFork } from "react-icons/fa6";
 
 function Search() {
-  const [coordinates, setCoordinates] = useState([45, 10]);
+  const [coordinates, setCoordinates] = useState([45, 20]);
   const [searchInput, setSearchInput] = useState("");
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [queryData, setQueryData] = useState([]);
-  const [pageInfo, setPageInfo] = useState(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [repoData, setRepoData] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasMoreRepos, setHasMoreRepos] = useState(true);
+  const [afterCursor, setAfterCursor] = useState(null);
 
-  const [searchRepositories, { loading, error }] = useLazyQuery(
-    SEARCH_REPOSITORIES,
-    {
+  useEffect(() => {
+    const savedUserData = sessionStorage.getItem("userData");
+    if (savedUserData) {
+      setUserData(JSON.parse(savedUserData));
+    }
+  }, []);
+
+  const [searchUserDetails, { loading: userLoading, error: userError }] =
+    useLazyQuery(SEARCH_USER_DETAILS, {
       client: apolloClient,
       onCompleted: (data) => {
-        setQueryData((prevData) => [...prevData, ...data.search.edges]);
-        setPageInfo(data.search.pageInfo);
-        setIsLoadingMore(false);
+        setUserData(data.user);
+        sessionStorage.setItem("userData", JSON.stringify(data.user));
+        fetchRepositories(data.user, null);
         setIsSearching(false);
       },
-    }
-  );
+    });
+
+  const [searchRepositories, { loading: repoLoading, error: repoError }] =
+    useLazyQuery(SEARCH_REPOSITORIES, {
+      client: apolloClient,
+      onCompleted: (data) => {
+        console.log("Fetched Repositories:", data);
+        if (data.search.edges.length > 0) {
+          setRepoData((prevRepos) => [...prevRepos, ...data.search.edges]);
+          const lastEdge = data.search.edges[data.search.edges.length - 1];
+          setAfterCursor(lastEdge.cursor);
+        } else {
+          setHasMoreRepos(false);
+        }
+        setIsSearching(false); // Reset loading state after fetching
+      },
+    });
 
   const handleInputChange = (query) => {
     setSearchInput(query);
-
     if (query.trim() === "") {
-      setFilteredSuggestions([]);
-      setQueryData([]);
-    } else {
-      const filtered = suggestions.filter((suggestion) =>
-        suggestion.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSuggestions(filtered);
+      setRepoData([]);
+      setUserData(null);
+      sessionStorage.removeItem("userData");
+      setHasMoreRepos(false);
+      setAfterCursor(null);
     }
   };
 
   const handleSearch = () => {
     if (searchInput.trim() !== "") {
       setIsSearching(true);
-      searchRepositories({ variables: { query: searchInput, first: 10 } });
-      setQueryData([]);
+      setRepoData([]);
+      setHasMoreRepos(true);
+      setAfterCursor(null);
+      searchUserDetails({ variables: { username: searchInput } });
     } else {
-      setQueryData([]);
+      setUserData(null);
+      setRepoData([]);
+      sessionStorage.removeItem("userData");
+      setHasMoreRepos(false);
+      setAfterCursor(null);
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setSearchInput(suggestion);
-    setFilteredSuggestions([]);
-    setIsSearching(true);
-    searchRepositories({ variables: { query: suggestion, first: 10 } });
-    setQueryData([]);
+  const fetchRepositories = (user, after) => {
+    const totalContributions =
+      user.contributionsCollection.contributionCalendar.totalContributions;
+    const primaryLanguage = getTopLanguages(user)[0]; // Get the top primary language
+
+    let query = `language:${primaryLanguage} sort:updated-desc `;
+    let starRange = "";
+
+    if (totalContributions > 1000) {
+      starRange = "stars:>500";
+    } else if (totalContributions > 500) {
+      starRange = "stars:50..500";
+    } else if (totalContributions > 0) {
+      starRange = "stars:<50";
+    }
+
+    query += `${starRange}`;
+
+    console.log(
+      "Fetching Repositories with Query:",
+      query,
+      "After Cursor:",
+      after
+    );
+
+    setIsSearching(true); // Set loading state when fetching more repos
+    searchRepositories({ variables: { query, first: 10, after } });
+  };
+
+  const getTopLanguages = (data) => {
+    const languageCounts = {};
+
+    const addLanguage = (language) => {
+      if (language) {
+        languageCounts[language] = (languageCounts[language] || 0) + 1;
+      }
+    };
+
+    data.contributionsCollection.commitContributionsByRepository.forEach(
+      (repo) => addLanguage(repo.repository.primaryLanguage?.name)
+    );
+
+    data.topRepositories.nodes.forEach((repo) =>
+      addLanguage(repo.primaryLanguage?.name)
+    );
+
+    const sortedLanguages = Object.entries(languageCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    return sortedLanguages.slice(0, 3).map(([name]) => name);
   };
 
   const handleLoadMore = () => {
-    if (pageInfo?.hasNextPage) {
-      setIsLoadingMore(true);
-      searchRepositories({
-        variables: { query: searchInput, first: 10, after: pageInfo.endCursor },
-      });
+    if (userData && afterCursor) {
+      fetchRepositories(userData, afterCursor);
     }
   };
 
   return (
-    <>
-      <main className="bg-thegray relative min-h-screen">
-        <div className="hidden lg:block">
-          <Cobe coordinates={coordinates} />
-        </div>
-        <div className="flex flex-col items-start justify-center relative pb-0 px-4 md:px-8 lg:px-32">
+    <main className="bg-thegray relative min-h-screen">
+      <div className="hidden lg:block">
+        <Cobe coordinates={coordinates} />
+      </div>
+      <div className="flex flex-col items-start justify-center relative pb-0 px-4 md:px-8 lg:px-32">
+        <div className="pt-6 pb-6">
+          <h1 className="font-Mona select-none font-bold text-white text-5xl leading-20 pb-2 fade-in1">
+            Search perfect Repo
+          </h1>
           <div className="pt-6 pb-6">
-            <h1 className="font-Mona select-none font-bold text-white text-5xl leading-20 pb-2 fade-in1">
-              Search
-            </h1>
-            <div className="flex select-none">
-              <p className="font-Hublot select-none text-gray-300 mr-4 max-w-[28rem] leading-[1.7rem] fade-in2">
-                Start by entering your known/interested tech stack into the
-                search box. Keep in mind that the results reflect the tech stack
-                github Repo has.
-              </p>
-            </div>
-            <div className="pt-6 pb-6">
-              <h1 className="text-4xl text-semibold lg:mb-5 text-gray-300">
-                Search Repositories
-              </h1>
-              <SearchInput
-                value={searchInput}
-                onInputChange={handleInputChange}
-                onSearch={handleSearch}
-                isSearching={isSearching}
-              />
-              <SuggestionList
-                suggestions={filteredSuggestions}
-                onSuggestionClick={handleSuggestionClick}
-              />
-              {loading && <p className="text-gray-300">Loading...</p>}
-              {error && <p className="text-red-500">Error: {error.message}</p>}
-              {queryData.length > 0 && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    {queryData.map((edge, index) => (
-                      <>
-                        <article className="rounded-xl border border-gray-700 bg-gray-800 p-4">
-                          <div className="flex items-center gap-4">
-                            <img
-                              alt=""
-                              src={edge.node.owner.avatarUrl}
-                              className="size-16 rounded-full object-cover"
-                            />
-
-                            <div>
-                              <h3 className="text-lg font-medium text-white">
-                              {edge.node.name}
-                              </h3>
-
-                            </div>
-                          </div>
-                        <div
-                          key={index}
-                          className="bg-gray-800 p-4 rounded-lg shadow-md"
-                        >
-                          <p className="text-gray-400">
-                            <FaUser className="inline align-text-center mr-1 mb-2" />{" "}
-                            {edge.node.owner.login}
-                          </p>
-                          <p className="text-gray-400">
-                            <IoLink className="inline align-text-center mr-1 mb-2" />{" "}
-                            <a
-                              href={edge.node.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-400 underline"
+            <SearchInput
+              value={searchInput}
+              onInputChange={handleInputChange}
+              onSearch={handleSearch}
+              isSearching={isSearching}
+            />
+            {(userLoading || repoLoading || isSearching) && (
+              <p className="text-gray-300">Loading...</p>
+            )}
+            {userError && (
+              <p className="text-red-500">Error: {userError.message}</p>
+            )}
+            {repoError && (
+              <p className="text-red-500">Error: {repoError.message}</p>
+            )}
+            {repoData.length > 0 && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {repoData.map(({ node: repo }) => (
+                  <div
+                    key={repo.url}
+                    className="bg-gray-800 p-4 rounded-lg shadow-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={repo.owner.avatarUrl}
+                        alt={repo.owner.login}
+                        className="w-12 h-12 rounded-full"
+                      />
+                      <div>
+                        <h2 className="text-lg font-bold text-white">
+                          <a
+                            href={repo.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {repo.name}
+                          </a>
+                        </h2>
+                        <p className="text-sm text-gray-400">
+                          by {repo.owner.login}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-gray-300">{repo.description}</p>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <span className="text-gray-400">
+                        {repo.stargazers.totalCount} stars
+                      </span>
+                      <span className="text-gray-400">
+                        {repo.forks.totalCount} forks
+                      </span>
+                    </div>
+                    {repo.primaryLanguage && (
+                      <p className="mt-2 text-sm text-gray-500">
+                        Primary Language: {repo.primaryLanguage.name}
+                      </p>
+                    )}
+                    {repo.repositoryTopics.nodes.length > 0 && (
+                      <div className="mt-2">
+                        <h3 className="text-sm text-gray-400">Topics:</h3>
+                        <ul className="flex flex-wrap gap-2">
+                          {repo.repositoryTopics.nodes.map((topic) => (
+                            <li
+                              key={topic.topic.name}
+                              className="text-xs bg-gray-700 px-2 py-1 rounded"
                             >
-                              {edge.node.url}
-                            </a>
-                          </p>
-                          <p className="text-gray-400">
-                            <FaExternalLinkAlt className="inline align-text-center mr-1 mb-2" />{" "}
-                            <a
-                              href={edge.node.homepageUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-400 underline"
-                            >
-                              {edge.node.homepageUrl}
-                            </a>
-                          </p>
-                          <p className="text-gray-400">
-                            <FaRegStar className="inline align-text-center mr-1 mb-2" />{" "}
-                            {edge.node.stargazers.totalCount}
-                          </p>
-                          <p className="text-gray-400">
-                            <FaCodeFork className="inline align-text-center mr-1 mb-2" />{" "}
-                            {edge.node.forks.totalCount}
-                          </p>
-                          <p className="text-gray-400">
-                            Des: {edge.node.description}
-                          </p>
-                        </div>
-                        </article>
-                      </>
-                    ))}
+                              {topic.topic.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                </>
-              )}
-              {queryData.length > 0 && pageInfo?.hasNextPage && (
+                ))}
+              </div>
+            )}
+            {hasMoreRepos && repoData.length > 0 && (
+              <div className="flex justify-center mt-4">
                 <button
-                  className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex items-center justify-center"
                   onClick={handleLoadMore}
-                  disabled={isLoadingMore} // Disable button while loading
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  disabled={isSearching} // Disable button while loading more
                 >
-                  {isLoadingMore ? (
+                  {isSearching ? (
                     <svg
                       className="animate-spin h-5 w-5 mr-3 text-white"
                       xmlns="http://www.w3.org/2000/svg"
@@ -206,17 +253,12 @@ function Search() {
                     "Load More"
                   )}
                 </button>
-              )}
-              {queryData.length === 0 &&
-                searchInput.trim() !== "" &&
-                !loading && (
-                  <p className="text-gray-400 mt-4">No tech stack found.</p>
-                )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 

@@ -3,7 +3,7 @@ const GITHUB_ACCESS_TOKEN = import.meta.env.VITE_GITHUB_ACCESS_TOKEN;
 
 if (!GITHUB_ACCESS_TOKEN) {
     throw new Error("Missing GitHub Access Token");
-  }
+}
 
 const httpLink = new HttpLink({
   uri: 'https://api.github.com/graphql',
