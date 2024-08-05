@@ -57,6 +57,9 @@ export const SEARCH_REPOSITORIES = gql`
                 }
               }
             }
+            issues {
+              totalCount
+            }
           }
         }
         cursor
@@ -68,3 +71,4 @@ export const SEARCH_REPOSITORIES = gql`
     }
   }
 `;
+

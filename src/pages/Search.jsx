@@ -44,7 +44,7 @@ function Search() {
         } else {
           setHasMoreRepos(false);
         }
-        setIsSearching(false); // Reset loading state after fetching
+        setIsSearching(false);
       },
     });
 
@@ -56,6 +56,7 @@ function Search() {
       sessionStorage.removeItem("userData");
       setHasMoreRepos(false);
       setAfterCursor(null);
+      setIsSearching(false)
     }
   };
 
@@ -78,31 +79,36 @@ function Search() {
   const fetchRepositories = (user, after) => {
     const totalContributions =
       user.contributionsCollection.contributionCalendar.totalContributions;
-    const primaryLanguage = getTopLanguages(user)[0]; // Get the top primary language
-
+    const primaryLanguage = getTopLanguages(user)[0];
+  
     let query = `language:${primaryLanguage} sort:updated-desc `;
     let starRange = "";
-
-    if (totalContributions > 1000) {
-      starRange = "stars:>500";
+  
+    if (totalContributions > 1500) {
+      starRange = "stars:>1000";
+    } else if (totalContributions > 1000) {
+      starRange = "stars:500..1000";
     } else if (totalContributions > 500) {
-      starRange = "stars:50..500";
+      starRange = "stars:100..500";
     } else if (totalContributions > 0) {
+      starRange = "stars:<100";
+    } else {
       starRange = "stars:<50";
     }
-
+  
     query += `${starRange}`;
-
+  
     console.log(
       "Fetching Repositories with Query:",
       query,
       "After Cursor:",
       after
     );
-
-    setIsSearching(true); // Set loading state when fetching more repos
-    searchRepositories({ variables: { query, first: 10, after } });
+  
+    setIsSearching(true); 
+    searchRepositories({ variables: { query, first: 12, after } });
   };
+  
 
   const getTopLanguages = (data) => {
     const languageCounts = {};
@@ -202,8 +208,19 @@ function Search() {
                         Primary Language: {repo.primaryLanguage.name}
                       </p>
                     )}
+                       {repo.issues.totalCount > 0 && (
+                      <div className="mt-4">
+                        <a
+                          href={`${repo.url}/issues`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm bg-gray-200 px-2 py-1 rounded hover:underline"
+                        > Visit Issues ({repo.issues.totalCount})
+                        </a>
+                      </div>
+                    )}
                     {repo.repositoryTopics.nodes.length > 0 && (
-                      <div className="mt-2">
+                      <div className="mt-4">
                         <h3 className="text-sm text-gray-400">Topics:</h3>
                         <ul className="flex flex-wrap gap-2">
                           {repo.repositoryTopics.nodes.map((topic) => (
